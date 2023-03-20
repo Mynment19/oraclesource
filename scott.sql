@@ -71,6 +71,8 @@ FROM
 SELECT
     empno,
     ename,
+    sal,
+    comm,
     sal * 12 + comm AS annsal
 FROM
     emp;
@@ -81,3 +83,458 @@ SELECT
     sal * 12 + comm annsal
 FROM
     emp;
+    
+
+-- 정렬 : order by
+--        내림차순 => DESC, 오름차순 => ASC
+
+-- ENAME, SAL 열 추출하고, SAL 내림차순으로 정렬
+SELECT
+    ename,
+    sal
+FROM
+    emp
+ORDER BY
+    sal;
+
+SELECT
+    *
+FROM
+    emp
+ORDER BY
+    empno;
+    
+-- 전체내용 출력, 결과는 부서번의 오름차순과 급여 내림차순으로 정렬
+SELECT
+    *
+FROM
+    emp
+ORDER BY
+    deptno,
+    sal DESC;
+    
+
+-- [실습] emp 테이블 모든 열 출력
+-- empno => employee_no
+-- ename => employee_name
+-- mgr => manager
+-- sal => salary
+-- comm => commision
+-- deptno => department_no
+-- 부서 번호를 기준으로 내림차순으로 정렬하되 부서번호가 같다면
+-- 사원이름을 기준으로 오름차순 정렬
+SELECT
+    empno  employee_no,
+    ename  employee_name,
+    mgr    manager,
+    sal    salary,
+    comm   commision,
+    deptno department_no
+FROM
+    emp
+ORDER BY
+    deptno DESC,
+    ename;
+
+-- where : 특정 조건을 기준으로 원하는 행을 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    deptno = 30;
+
+-- 사원번호가 7782인 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    empno = 7782;
+    
+-- 부서번호가 30이고, 사원직책이 salesman인 행 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+        deptno = 30
+    AND job = 'SALESMAN';
+    
+-- 사원번호가 7499이고, 부서번호가 30인 행 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+        empno = 7499
+    AND deptno = 30;
+    
+-- 부서번호가 30이거나, 사원직책이 CLECK 인 행 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    deptno = 30
+    OR job = 'CLECK';
+    
+-- 산술 연산자 : +, -, *, /, mod(나머지 - 표준은 아님. 오라클에서만 제공)
+-- 비교 연산자 : >, >=, <, <=
+-- 등가 비교 연산자 : =, !=, <>, ^= (!=, <>, ^= : a와 b의 값이 다를 경우 true, 같은 경우 false)
+-- 논리 부정 연산자 : NOT
+-- IN 연산자
+-- BETWEEN A AND B 연산자
+-- LIKE 연산자와 와일드 카드(_, %)
+-- IS NULL 연산자
+-- 집합 연산자 : UNION(합집합-중복제거), UNION ALL(합집합-중복포함), MINUS(차집합), INTERSECT(교집합)
+
+-- 연산자 우선순위
+-- 1) 산술 : * /
+-- 2) 산술 : + -
+-- 3) 비교
+-- 4) null, like, in
+-- 5) between a and b
+-- 6) not
+-- 7) and
+-- 8) or
+-- 우선순위를 줘야 한다면 소괄호 사용 추천
+
+
+
+-- EMP 테이블에서 급여 열에 12를 곱한 값이 36000 인 행 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal * 12 = 36000;
+    
+-- ename이 F 이후의 문자로 시작하는 사원 조회
+-- 문자 표현 시 ''만 사용
+SELECT
+    *
+FROM
+    emp
+WHERE
+    ename >= 'F';
+    
+-- JOB이 manager, salesman, clerk 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    job = 'MANAGER'
+    OR job = 'SALESMAN'
+    OR job = 'CLERK';
+    
+-- sal이 3000이 아닌 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal != 3000;
+
+-- JOB이 manager, salesman, clerk 사원 조회 => IN 연산자
+SELECT
+    *
+FROM
+    emp
+WHERE
+    job IN ( 'MANAGER', 'SALESMAN', 'CLERK' );
+    
+-- JOB이 manager, salesman, clerk 이 아닌 사원 조회 => IN 연산자
+SELECT
+    *
+FROM
+    emp
+WHERE
+    job NOT IN ( 'MANAGER', 'SALESMAN', 'CLERK' );
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    NOT sal = 3000;
+    
+-- 부서번호가 10,20인 사원조회(IN 사용)
+SELECT
+    *
+FROM
+    emp
+WHERE
+    deptno IN ( 10, 20 );
+    
+-- 급여가 2000 이상 3000 이하인 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal BETWEEN 2000 AND 3000;
+    
+-- LIKE 연산자와 와일드 카드(_, %)
+-- 사원 이름이 S로 시작하는 사원 정보 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    ename LIKE ( 'S%' );
+-- 사원 이름의 2번째 글짜가 L인 사원만 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    ename LIKE ( '_L%' );
+-- 사원 이름에 AM이 포함된 사원만 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    ename LIKE ( '%AM%' );
+-- 사원 이름에 AM이 포함되지 않은 사원만 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    ename NOT LIKE ( '%AM%' );
+    
+-- NULL : 데이터 값이 완전히 비어 있는 상태
+SELECT
+    *
+FROM
+    emp
+WHERE
+    comm IS NULL;
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    mgr IS NOT NULL;
+    
+-- 집합 연산자
+-- union(동일한 결과값인 경우 중복 제거), union all(중복 제거 안함) : 합집합
+
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno = 10
+UNION
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno = 10;
+
+-- 
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno = 10
+UNION ALL
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno = 10;
+
+-- minus
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+MINUS
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno = 10;
+
+-- INTERSECT
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+INTERSECT
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno = 10;
+    
+-- emp 테이블에서 사원 이름이 S로 끝나는 사원 데이터 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    ename LIKE '%S';
+
+-- emp 테이블에서 30번 부서에 근무하는 사원 중에서 직책이 SALESMAN인 사원의
+-- 사원번호, 이름, 급여 조회(SAL 내림차순)
+SELECT
+    empno,
+    ename,
+    sal
+FROM
+    emp
+WHERE
+        deptno = 30
+    AND job = 'SALESMAN'
+ORDER BY
+    sal DESC;
+
+-- emp 테이블을 사용하여 20, 30번 부서에 근무하고 있는 사원 중 급여가
+-- 2000 초과인 사원의 사원번호, 이름, 급여, 부서번호 조회
+-- 집합 연산자를 사용하는 방식과 사용하지 않는 방식 두 가지를 사용
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno LIKE ( 20 )
+    AND sal > 2000
+UNION
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    deptno LIKE ( 30 )
+    AND sal > 2000;
+
+SELECT
+    empno,
+    ename,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    ( deptno LIKE ( 20 )
+      OR deptno LIKE ( 30 ) )
+    AND sal > 2000;
+
+-- 사원 이름에 E가 포함되어 있는 30번 부서 사원 중 급여가 1000~2000 사이가 아닌
+-- 사원의 이름, 사원번호, 급여, 부서번호를 조회하기
+SELECT
+    ename,
+    empno,
+    sal,
+    deptno
+FROM
+    emp
+WHERE
+    ename LIKE '%E%'
+    AND sal NOT BETWEEN 1000 AND 2000;
+
+-- 추가 수당이 존재하지 않으며, 상급자가 있고 직책이 manager, clerk 인 사원
+-- 중에서 사원 이름의 두번째 글자가 L이 아닌 사원의 정보 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    comm IS NULL
+    AND mgr IS NOT NULL
+    AND job IN ( 'MANAGER', 'CLERK' )
+    AND ename NOT LIKE '_L%';
+    
+    
+-- 오라클 함수
+-- 오라클에서 기본으로 제공하는 내장 함수와 사용자가 필요에 의해 직접 정의한 사용자 정의 함수
+
+-- 1.문자열 함수
+-- 1) UPPER : 모두 대문자, LOWER : 모두 소문자, INITCAP : 첫글자만 대문자
+-- like '%ORACLE%' or like '%oracle%' or '%Oracle%' ==> 검색 시 사용
+
+SELECT
+    ename,
+    upper(ename),
+    lower(ename),
+    initcap(ename)
+FROM
+    emp;
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    upper(ename) = 'FORD';
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    upper(ename) LIKE upper('%ford%');
+
+-- 2)length : 문자열 길이
+SELECT
+    ename,
+    length(ename)
+FROM
+    emp;
+
+-- 사원 이름의 길이가 5 이상인 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    length(ename) >= 5;
+
+-- 한글일 때
+-- dual : sys가 소유하는 테이블(임시 연산이나 함수의 결과 값 확인하는 용도)
+SELECT
+    length('한글')
+FROM
+    dual;
