@@ -534,7 +534,74 @@ WHERE
 
 -- 한글일 때
 -- dual : sys가 소유하는 테이블(임시 연산이나 함수의 결과 값 확인하는 용도)
+-- lengthb : 문자가 사용하는 바이트 수
+-- 영어 : 문자1 => 1byte, 한글 : 문자1 => 3byte
 SELECT
-    length('한글')
+    length('한글'),
+    lengthb('한글')
 FROM
     dual;
+    
+-- 3) substr(문자열 데이터, 시작위치, 추출길이) : 추출길이 생략 가능
+--      문자열 일부 추출
+
+SELECT
+    job,
+    substr(job, 3, 2),
+    substr(job, 5),
+    substr(job, - 3)
+FROM
+    emp;
+
+-- ename, 세번째 글자부터 출력
+SELECT
+    ename,
+    substr(ename, 3)
+FROM
+    emp;
+
+-- 3) instr : 문자열 데이터 안에서 특정 문자 위치 찾기
+-- instr(대상문자열, 위치를 찾으려는 문자열, 대상 문자열에서 찾기를 시작할 위치(선택)
+--        시작위치에서 찾으려는 문자가 몇번째인지 지정(선택))
+-- HELLO, ORACLE! 에서 L 찾기
+SELECT
+    instr('HELLO, ORACLE!', 'L')       AS instr1,
+    instr('HELLO, ORACLE!', 'L', 5)    AS instr2,
+    instr('HELLO, ORACLE!', 'L', 2, 2) AS instr3
+FROM
+    dual;
+    
+-- 4) replace : 특정 문자를 다른 문자로 변경
+-- replace(문자열 데이터, 찾는 문자, 변경 문자)
+
+-- 010-1234-5678 : - 를 빈 문자열로 변경 / -를 없애기
+SELECT
+    '010-1234-5678'                    AS 변경전,
+    replace('010-1234-5678', '-', ' ') AS replace1,
+    replace('010-1234-5678', '-')      AS replace2
+FROM
+    dual;
+    
+-- '이것이 Oracle이다', '이것이' => This is 변경
+SELECT
+    replace('이것이 Oracle이다', '이것이', 'This is') AS 변경후
+FROM
+    dual;
+
+-- 5) concat : 두 문자열 데이터 합치기
+SELECT
+    concat(empno, ':', ename)
+FROM
+    emp;
+
+-- || 문자열 연결 연산자
+SELECT
+    empno
+    || ename
+    || ':'
+    || ename
+FROM
+    emp;
+    
+-- 6) trim, ltrim, rtrim : 공백 제거
+select '        이것이     ', trim('        이것이     ') from dual;
