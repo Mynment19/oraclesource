@@ -604,4 +604,442 @@ FROM
     emp;
     
 -- 6) trim, ltrim, rtrim : 공백 제거
-select '        이것이     ', trim('        이것이     ') from dual;
+SELECT
+    '        이것이     ',
+    TRIM('        이것이     ')
+FROM
+    dual;
+
+
+-- inner join
+SELECT
+    e.empno,
+    e.ename,
+    e.deptno,
+    d.dname,
+    d.loc
+FROM
+    emp  e,
+    dept d
+WHERE
+    e.deptno = d.deptno;
+    
+-- sql-99 표준
+-- join ~ on
+SELECT
+    e.empno,
+    e.ename,
+    e.deptno,
+    d.dname,
+    d.loc
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno;
+
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    e.deptno,
+    d.dname,
+    d.loc
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+                   AND e.sal <= 2500
+                   AND e.deptno <= 9999;
+
+SELECT
+    *
+FROM
+         emp e
+    JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal;
+
+SELECT
+    e1.empno,
+    e1.ename,
+    e1.mgr,
+    e2.empno AS mgr_empno,
+    e2.ename AS mgr_ename
+FROM
+    emp e1
+    LEFT OUTER JOIN emp e2 ON e1.mgr = e2.empno;
+
+SELECT
+    e1.empno,
+    e1.ename,
+    e1.mgr,
+    e2.empno AS mgr_empno,
+    e2.ename AS mgr_ename
+FROM
+    emp e1
+    RIGHT OUTER JOIN emp e2 ON e1.mgr = e2.empno;
+
+SELECT
+    e1.empno,
+    e1.ename,
+    e1.mgr,
+    e2.empno AS mgr_empno,
+    e2.ename AS mgr_ename
+FROM
+    emp e1
+    FULL OUTER JOIN emp e2 ON e1.mgr = e2.empno;
+
+-- select 실행 순서
+-- 1)from 2)where 3)group by 4)having 5)select 6)order by
+
+SELECT
+    e.empno,
+    e.ename,
+    e.deptno,
+    d.dname,
+    d.loc
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+                   AND sal > 3000;
+    
+-- emp, dept inner join, 급여가 2500 이하이고, 사원번호가 9999 이하인 사원 정보 조회
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    e.deptno,
+    d.dname,
+    d.loc
+FROM
+    emp  e,
+    dept d
+WHERE
+        e.deptno = d.deptno
+    AND e.sal <= 2500
+    AND e.deptno <= 9999;
+
+-- emp와 salgrade 조인
+-- emp 테이블의 sal이 salgrade 테이블의 losal과 hisal 범위에 들어가는 형태로 조인
+
+SELECT
+    *
+FROM
+    emp      e,
+    salgrade s
+WHERE
+    e.sal BETWEEN s.losal AND s.hisal;
+
+-- self join : 자기 자신 테이블과 조인
+SELECT
+    e1.empno,
+    e1.ename,
+    e1.mgr,
+    e2.empno AS mgr_empno,
+    e2.ename AS mgr_ename
+FROM
+    emp e1,
+    emp e2
+WHERE
+    e1.mgr = e2.empno;
+
+-- outer join
+-- 1) left outer join
+SELECT
+    e1.empno,
+    e1.ename,
+    e1.mgr,
+    e2.empno AS mgr_empno,
+    e2.ename AS mgr_ename
+FROM
+    emp e2
+WHERE
+    e1.mgr = e2.empno (+);
+
+-- 2) right outer join
+SELECT
+    e1.empno,
+    e1.ename,
+    e1.mgr,
+    e2.empno AS mgr_empno,
+    e2.ename AS mgr_ename
+FROM
+    emp e1,
+    emp e2
+WHERE
+    e1.mgr (+) = e2.empno;
+    
+-- 연결해야 할 테이블이 세개일때
+-- select *
+-- from table1 t1, table2 t2, tabe3 t3
+-- where t1.empno = t2.empno and t2.deptno = t3.deptno;
+
+-- select *
+-- from table1 t1 join table2 t2 on t1.empno = t2.empno join tabe3 t3 on t2.deptno = t3.deptno;
+
+SELECT
+    e.deptno,
+    d.dname,
+    e.empno,
+    e.ename,
+    e.sal
+FROM
+         emp e
+    JOIN dept d ON sal > 2000
+                   AND d.deptno = e.deptno
+ORDER BY
+    deptno;
+
+SELECT
+    d.deptno,
+    d.dname,
+    floor(AVG(sal)) AS avg_sal,
+    MAX(sal)        AS max_sal,
+    MIN(sal)        AS min_sal,
+    COUNT(*)        AS cnt
+FROM
+    emp  e,
+    dept d
+WHERE
+    e.deptno = d.deptno
+GROUP BY
+    d.deptno,
+    d.dname
+ORDER BY
+    deptno;
+
+SELECT
+    d.deptno,
+    d.dname,
+    e.empno,
+    e.ename,
+    e.job,
+    e.sal
+FROM
+    emp  e
+    RIGHT OUTER JOIN dept d ON e.deptno = d.deptno
+ORDER BY
+    deptno,
+    e.ename;
+
+
+-- 서브쿼리
+-- sql문을 실행하는 데 필요한 데이터를 추가로 조회하기 위해 sql문 내부에서 사용하는 select문
+
+-- select 조회할 열 from 테이블명 where 조건식 (select 조회할 열 from 테이블명 where 조건식)
+
+
+-- 단일행 서브쿼리 : 서브쿼리 결과로 하나의 행 반환
+-- 존스의 급여보다 높은 급여를 받는 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal > (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            ename = 'JONES'
+    );
+    
+-- 사원 이름이 ALLEN 인 사원의 추가 수당 보다 많은 추가수당을 받는 사원조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    comm > (
+        SELECT
+            comm
+        FROM
+            emp
+        WHERE
+            ename = 'ALLEN'
+    );
+    
+-- 사원 이름이 WARD인 사원의 입사일보다 빨리 입사한 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    hiredate < (
+        SELECT
+            hiredate
+        FROM
+            emp
+        WHERE
+            ename = 'WARD'
+    );
+    
+-- 20번 부서에 속한 사원 중 전체 사원의 평균 급여보다 높은 급여를 받는 사원정보 및 
+-- 부서 정보 조회
+-- 사원번호, 사원명, 직무, 급여, 부서번호, 부서명, 지역
+SELECT
+    e.empno,
+    e.ename,
+    e.job,
+    e.sal,
+    e.deptno,
+    d.dname,
+    d.loc
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+WHERE
+        d.deptno = 20
+    AND e.sal > (
+        SELECT
+            AVG(sal)
+        FROM
+            emp
+    );
+
+-- 20번 부서에 속한 사원 중 전체 사원의 평균 급여보다 작거나 같은 급여를 받는 사원정보 및 
+-- 부서 정보 조회
+SELECT
+    e.empno,
+    e.ename,
+    e.job,
+    e.sal,
+    e.deptno,
+    d.dname,
+    d.loc
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+WHERE
+        d.deptno = 20
+    AND e.sal <= (
+        SELECT
+            AVG(sal)
+        FROM
+            emp
+    );
+    
+-- 다중행 서브쿼리 : 서브쿼리 결과로 여러개의 행 반환
+
+-- 각 부서별 최고 급여와 동일한 급여를 받는 사원 정보 조회
+SELECT
+    MAX(sal)
+FROM
+    emp
+GROUP BY
+    deptno;
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal = (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        GROUP BY
+            deptno
+    );
+
+-- from절에 사용하는 서브쿼리 (인라인 뷰)
+-- from절에 직접 테이블을 명시해서 사용하기에는 테이블 내 데이터 규모가 클 때, 불필요한 열이 많을 떄
+SELECT
+    e10.empno,
+    e10.ename,
+    e10.deptno,
+    d.dname,
+    d.loc
+FROM
+    (
+        SELECT
+            *
+        FROM
+            emp
+        WHERE
+            deptno = 10
+    ) e10,
+    (
+        SELECT
+            *
+        FROM
+            dept
+    ) d
+WHERE
+    e10.deptno = d.deptno;
+
+-- select 절에 사용하는 서브쿼리 (스칼라 서브쿼리)
+SELECT
+    empno,
+    ename,
+    job,
+    sal,
+    (
+        SELECT
+            grade
+        FROM
+            salgrade
+        WHERE
+            e.sal BETWEEN losal AND hisal
+    ) AS salgrade,
+    deptno,
+    (
+        SELECT
+            dname
+        FROM
+            dept
+        WHERE
+            e.deptno = dept.deptno
+    ) AS dname
+FROM
+    emp e;
+    
+-- 10번 부서에 근무하는 사원 중 30번 부서에는 존재하지 않는 직책을 가진 사원들의
+-- 사원정보, 부서 정보를 출력
+SELECT
+    e.empno,
+    e.ename,
+    e.job,
+    d.deptno,
+    d.dname,
+    d.loc
+FROM
+    emp  e,
+    dept d
+WHERE
+        e.deptno = d.deptno
+    AND e.job NOT IN (
+        SELECT
+            job
+        FROM
+            emp
+        WHERE
+            deptno = 30
+    )
+    AND e.deptno = 10; 
+    
+-- 사원정보, 급여정보
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    (
+        SELECT
+            grade
+        FROM
+            salgrade
+        WHERE
+            e.sal BETWEEN losal AND hisal
+    ) AS grade
+FROM
+    emp e
+WHERE
+    e.sal > (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        WHERE
+            job = 'SALESMAN'
+    )
+ORDER BY
+    e.empno;
+    
