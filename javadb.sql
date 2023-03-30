@@ -1,8 +1,8 @@
 -- javadb
 
--- userTBL í…Œì´ë¸” ìƒì„±
--- no(ë²ˆí˜¸-ìˆ«ì(4)), username(ì´ë¦„-í•œê¸€(4)), birthYear(ë…„ë„-ìˆ«ì(4)), addr(ì£¼ì†Œ-ë¬¸ì(í•œê¸€,ìˆ«ì)), mobile(010-1234-1234)
--- no pk ì œì•½ì¡°ê±´ ì§€ì •(ì œì•½ì¡°ê±´ëª… pk_userTBL)
+-- userTBL Å×ÀÌºí »ı¼º
+-- no(¹øÈ£-¼ıÀÚ(4)), username(ÀÌ¸§-ÇÑ±Û(4)), birthYear(³âµµ-¼ıÀÚ(4)), addr(ÁÖ¼Ò-¹®ÀÚ(ÇÑ±Û,¼ıÀÚ)), mobile(010-1234-1234)
+-- no pk Á¦¾àÁ¶°Ç ÁöÁ¤(Á¦¾àÁ¶°Ç¸í pk_userTBL)
 
 create table userTBL(
     no number(4) CONSTRAINT pk_userTBL PRIMARY KEY,
@@ -13,23 +13,23 @@ create table userTBL(
 
 drop table userTBL;
 
--- ì‹œí€€ìŠ¤ ìƒì„±
--- user_seq ìƒì„±(ê¸°ë³¸)
+-- ½ÃÄö½º »ı¼º
+-- user_seq »ı¼º(±âº»)
 
 create sequence user_seq;
 
 
 -- insert
--- no : user_seq ê°’ ë„£ê¸°
+-- no : user_seq °ª ³Ö±â
 INSERT INTO userTBL(no, username, birthYear, addr, mobile)
-VALUES(user_seq.NEXTVAL, 'í™ê¸¸ë™', 2010, 'ì„œìš¸ì‹œ ì¢…ë¡œêµ¬ 123', '010-1234-5678');
+VALUES(user_seq.NEXTVAL, 'È«±æµ¿', 2010, '¼­¿ï½Ã Á¾·Î±¸ 123', '010-1234-5678');
 
 commit;
 
--- ëª¨ë“  ì»¬ëŸ¼ not null
+-- ¸ğµç ÄÃ·³ not null
 
--- paytype : pay_no(ìˆ«ì-1 pk), info(ë¬¸ì-card, cash)
--- paytype_seq ìƒì„±
+-- paytype : pay_no(¼ıÀÚ-1 pk), info(¹®ÀÚ-card, cash)
+-- paytype_seq »ı¼º
 
 CREATE TABLE paytype(
     pay_no number(1) PRIMARY KEY,
@@ -42,7 +42,7 @@ INSERT INTO paytype values(paytype_seq.NEXTVAL, 'cash');
 
 SELECT * FROM paytype; -- 1 : card, 2 : cash
 
--- suser : user_id(ìˆ«ì-4 pk) , name(ë¬¸ì-í•œê¸€), pay_no(ìˆ«ì-1 : paytype í…Œì´ë¸”ì— ìˆëŠ” pay_no ì°¸ì¡° í•´ì„œ ì‚¬ìš©)
+-- suser : user_id(¼ıÀÚ-4 pk) , name(¹®ÀÚ-ÇÑ±Û), pay_no(¼ıÀÚ-1 : paytype Å×ÀÌºí¿¡ ÀÖ´Â pay_no ÂüÁ¶ ÇØ¼­ »ç¿ë)
 CREATE TABLE suser(
     user_id number(4) PRIMARY KEY,
     name varchar2(20) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE suser(
 select * from suser;
 
 -- product
--- product_id(ìˆ«ì-8 pk), pname(ë¬¸ì), price(ìˆ«ì), content(ë¬¸ì)
+-- product_id(¼ıÀÚ-8 pk), pname(¹®ÀÚ), price(¼ıÀÚ), content(¹®ÀÚ)
 CREATE TABLE product(
     product_id number(8) PRIMARY KEY,
     pname varchar2(30) NOT NULL,
@@ -61,8 +61,8 @@ CREATE TABLE product(
 CREATE SEQUENCE product_seq;
 
 -- sorder
--- order_id(ìˆ«ì-8 pk), user_id(user í…Œì´ë¸”ì˜ user_id ì°¸ì¡°), product_id(product í…Œì´ë¸”ì˜ product_id ì°¸ì¡°)
--- order_seq ìƒì„±
+-- order_id(¼ıÀÚ-8 pk), user_id(user Å×ÀÌºíÀÇ user_id ÂüÁ¶), product_id(product Å×ÀÌºíÀÇ product_id ÂüÁ¶)
+-- order_seq »ı¼º
 
 CREATE TABLE sorder(
     order_id number(8) PRIMARY KEY,
@@ -72,31 +72,31 @@ CREATE TABLE sorder(
 
 CREATE SEQUENCE order_seq;
 
--- user_id, name, pay_no, info ì¡°íšŒ
--- suserì™€ paytype join
+-- user_id, name, pay_no, info Á¶È¸
+-- suser¿Í paytype join
 
 SELECT u.user_id, u.name, u.pay_no, p.info
 FROM suser u, paytype p
 WHERE u.pay_no = p.pay_no AND u.user_id=1000;
 
--- ì£¼ë¬¸ì •ë³´ ì „ì²´ ì¡°íšŒ
+-- ÁÖ¹®Á¤º¸ ÀüÃ¼ Á¶È¸
 SELECT * FROM sorder;
 
--- ì£¼ë¬¸ëª©ë¡ ì¡°íšŒ
+-- ÁÖ¹®¸ñ·Ï Á¶È¸
 -- user_id, name, card/cash, product_id, pname, price, content
 
--- ê¸°ì¤€ : sorder
--- suser í…Œì´ë¸” : name,
--- paytype í…Œì´ë¸” : card/cash
--- product í…Œì´ë¸” : product_id, pname, price, content
+-- ±âÁØ : sorder
+-- suser Å×ÀÌºí : name,
+-- paytype Å×ÀÌºí : card/cash
+-- product Å×ÀÌºí : product_id, pname, price, content
 
--- ì „ì²´ ì£¼ë¬¸ëª©ë¡
+-- ÀüÃ¼ ÁÖ¹®¸ñ·Ï
 SELECT s.user_id, u.name, t.info, s.product_id, p.pname, p.price, p.content, s.order_date
 FROM sorder s, suser u, paytype t, product p
 WHERE s.user_id = u.user_id AND u.pay_no = t.pay_no AND s.product_id = p.product_id;
 
 
--- í™ê¸¸ë™ ì£¼ë¬¸ëª©ë¡ ì¡°íšŒ
+-- È«±æµ¿ ÁÖ¹®¸ñ·Ï Á¶È¸
 SELECT s.user_id, u.name, t.info, s.product_id, p.pname, p.price, p.content, s.order_date
 FROM sorder s, suser u, paytype t, product p
 WHERE s.user_id = u.user_id AND u.pay_no = t.pay_no AND s.product_id = p.product_id AND s.user_id = 1000;
