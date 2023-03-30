@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 -- javadb
 
 -- userTBL 테이블 생성
@@ -114,3 +115,6 @@ WHERE s.user_id = u.user_id AND u.pay_no = t.pay_no AND s.product_id = p.product
 
 
 
+=======
+-- javadb
+>>>>>>> 039ec8fa516c9c41d3a0c0fc64ab63ec35d4003b
