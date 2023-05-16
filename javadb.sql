@@ -555,5 +555,9 @@ delete tbl_sample1;
 
 commit;
 
+alter table membertbl modify
+    password varchar2(100);
+    
+commit;
 
 
