@@ -560,4 +560,23 @@ alter table membertbl modify
     
 commit;
 
+select * from membertbl;
+
+
+-- 페이지 나누기를 할 때 필요한 sql 코드
+select * 
+from (select rownum rn, bno, title, writer
+      from (select bno, title, writer from spring_board order by bno desc)
+      where rownum <= 20)
+where rn>0;
+
+
+-- 오라클 힌트 사용
+select bno, title, writer,regdate,updatedate
+from (select /*+INDEX_DESC(spring_board pk_spring_board)*/ rownum rn, bno, title, writer,regdate,updatedate
+      from spring_board
+      where rownum <= 40)
+where rn > 20;
+
+
 
