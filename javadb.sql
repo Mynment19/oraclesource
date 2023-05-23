@@ -579,4 +579,22 @@ from (select /*+INDEX_DESC(spring_board pk_spring_board)*/ rownum rn, bno, title
 where rn > 20;
 
 
+-- 댓글 테이블
+create table spring_reply(
+    rno number(10,0) constraint pk_reply primary key, -- 댓글 글 번호
+    bno number(10,0) not null,                        -- 원본 글 번호  
+    reply varchar2(1000) not null,                    -- 댓글 내용
+    replyer varchar2(50) not null,                    -- 댓글 작성자
+    replydate date default sysdate,                   -- 댓글 작성날짜  
+    constraint fk_reply_board foreign key(bno) references spring_board(bno) -- 외래키 제약조건
+);
+
+create sequence seq_reply;
+
+insert into spring_reply(rno, bno, reply, replyer)
+values (seq_reply.nextval,62,'테스트 입니다','test');
+
+
+
+commit;
 
