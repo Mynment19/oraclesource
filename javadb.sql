@@ -460,6 +460,8 @@ values(board_seq.nextval,'김댓글','12345','ReRe : 게시글','댓글의 댓�
 
 select rownum, bno, title from board order by bno desc;
 
+select /*+INDEX_DESC(board pk_board)*/ rownum, bno, title from board;
+
 select rownum, bno, title, re_ref, re_lev, re_seq 
 from board order by re_ref desc, re_seq asc;
 
@@ -509,59 +511,74 @@ from (select rownum rnum, bno, title, re_ref, re_lev, re_seq
       where rownum <= 90)
 where rnum > 60;
 
-commit;
 
+select count(*) from board;
+
+
+select count(*) from board where title like '%게시글%';
+
+
+------ spring_board 
+-- bno 숫자(10) 제약조건 pk 제약조건명 pk_spring_board
+-- title varchar2(200) 제약조건 not null
+-- content varchar2(2000) 제약조건 not null
+-- writer varchar2(50) 제약조건 not null
+-- regdate date default 로 현재시스템날짜
+-- updatedate date default 로 현재시스템날짜
+create table spring_board(
+    bno number(10) constraint pk_spring_board primary key,
+    title varchar2(200) not null,
+    content varchar2(2000) not null,
+    writer varchar2(50) not null,
+    regdate date default sysdate,
+    updatedate date default sysdate);
+
+-- 시퀀스 seq_board
+create sequence seq_board;
 
 
 -- mybatis 연습용 테이블
 create table person(
     id varchar2(20) primary key,
     name varchar2(30) not null);
-
-
+    
 select * from person;
 
 insert into person values('kim123','김길동');
 
 commit;
 
-drop table spring_board;
-
-CREATE TABLE spring_board (
-    bno NUMBER(10) CONSTRAINT pk_spring_board PRIMARY KEY,
-    title varchar2(200) NOT NULL,
-    content varchar2(2000) NOT NULL,
-    writer varchar2(50) NOT NULL,    
-    regdate DATE DEFAULT sysdate,
-    updatedate DATE DEFAULT sysdate
-);
--- 시퀀스 seq_board
-CREATE SEQUENCE seq_board;
--- 커밋
-COMMIT;
-
 
 -- 트랜잭션 테스트 테이블
 -- 트랜잭션 : 하나의 업무에 여러개의 작은 업무들이 같이 묶여 있음 / 하나의 단위로 처리
--- 계좌이체 : 계좌 출금 => 타계좌 입금
-create table tbl_sample1(col1 varchar(500));
-create table tbl_sample2(col1 varchar(50));
+-- 계좌이체 : 계좌 출금 => 타 계좌 입금
+
+create table tbl_sample1(col1 varchar2(500));
+create table tbl_sample2(col1 varchar2(50));
 
 select * from tbl_sample1;
 select * from tbl_sample2;
 
 delete tbl_sample1;
-
-
 commit;
 
-alter table membertbl modify
+
+ALTER TABLE membertbl MODIFY
     password varchar2(100);
-    
+
+
+-- 페이지 나누기(GET 방식)
+-- rownum : 조회된 결과에 번호를 매겨줌
+-- spring_board : bno 가 pk 상황(order by 기준도 bno)
+-- 1 page : 가장 최신글 20개 
+-- 2 page : 그 다음 최신글 20개
+
+insert into spring_board(bno,title,content,writer)
+(select seq_board.nextval,title,content,writer from spring_board);
+
 commit;
 
-select * from membertbl;
-
+select count(*) from spring_board;
 
 -- 페이지 나누기를 할 때 필요한 sql 코드
 select * 
@@ -578,23 +595,167 @@ from (select /*+INDEX_DESC(spring_board pk_spring_board)*/ rownum rn, bno, title
       where rownum <= 40)
 where rn > 20;
 
-
--- 댓글 테이블
+-- 댓글 테이블 
 create table spring_reply(
-    rno number(10,0) constraint pk_reply primary key, -- 댓글 글 번호
-    bno number(10,0) not null,                        -- 원본 글 번호  
+    rno number(10,0) constraint pk_reply primary key, -- 댓글 글번호
+    bno number(10,0) not null,                        -- 원본글 글번호
     reply varchar2(1000) not null,                    -- 댓글 내용
     replyer varchar2(50) not null,                    -- 댓글 작성자
-    replydate date default sysdate,                   -- 댓글 작성날짜  
+    replydate date default sysdate,                   -- 댓글 작성날짜
     constraint fk_reply_board foreign key(bno) references spring_board(bno) -- 외래키 제약조건
 );
+
+-- 댓글 테이블 수정(컬럼 추가) updatedate
+ALTER TABLE spring_reply ADD updatedate date default sysdate;
 
 create sequence seq_reply;
 
 insert into spring_reply(rno, bno, reply, replyer)
-values (seq_reply.nextval,62,'테스트 입니다','test');
+values(seq_reply.nextval,1181,'댓글을 달아요','test1');
+commit;
+
+-- spring_reply 인덱스 추가 설정
+create index idx_reply on spring_reply(bno desc, rno asc);
 
 
+select rno, bno, reply, replyer,replydate,updatedate
+from (select /*+INDEX(spring_reply idx_reply)*/ rownum rn, rno, bno, reply, replyer,replydate,updatedate
+      from spring_reply
+      where bno=1181 and rownum <= 10)
+where rn > 0;
+
+-- spring_board 에 컬럼 추가(댓글 수 저장)
+alter table spring_board add replycnt number default 0;
+
+-- 이미 들어간 댓글 수 삽입
+update spring_board
+set replycnt = (select count(rno) from spring_reply where spring_board.bno = spring_reply.bno);
 
 commit;
 
+select * from spring_board where bno = 1181;
+
+
+-- 파일첨부
+-- spring_attach
+-- uuid, uploadpath, filename, filetype
+create table spring_attach(
+    uuid varchar2(100) constraint pk_attach primary key,
+    uploadpath varchar2(200) not null,
+    filename varchar2(100) not null,
+    filetype char(1) default '1',
+    bno number(10,0) not null,
+    constraint fk_board_attach foreign key(bno) references spring_board(bno)
+);
+
+-- spring_board bno 와 spring_attach bno 일치 시
+-- title,content,writer,bno, uuid, uploadpath,filetype,filename
+-- inner join
+
+select title,content,writer,sb.bno, sa.uuid,uploadpath,filetype,filename
+from spring_board sb, spring_attach sa
+where sb.bno = sa.bno;
+
+select title,content,writer,sa.bno, uuid, uploadpath,filetype,filename
+from spring_board sb join spring_attach sa on sb.bno = sa.bno
+where sb.bno=1202;
+
+-- 어제 날짜의 첨부 목록 가져오기
+select * from spring_attach where uploadpath = to_char(sysdate-1,'yyyy\mm\dd');
+
+-- security 프로젝트에서 사용할 테이블
+-- user 테이블 작성 시 enabled 컬럼 추가
+create table sp_user(
+    userid varchar2(50) primary key,
+    email varchar2(100) not null,
+    password varchar2(100) not null,
+    enabled char(1) default '1');
+
+-- user 테이블과 관련된 권한 테이블 작성
+create table sp_user_authority(
+    userid varchar2(50) not null,
+    authority varchar2(50) not null);
+
+-- 외래 키 설정    
+alter table sp_user_authority add constraint sp_user_authority_fk foreign key(userid) references sp_user(userid);
+
+insert into sp_user(userid,email,password) values('hong123','hong123@gmail.com','1111');
+insert into sp_user_authority(userid,authority) values('hong123','ROLE_USER');
+insert into sp_user_authority(userid,authority) values('hong123','ROLE_ADMIN');
+commit;
+
+-- sp_user 와 sp_user_authority left outer join
+
+select s1.userid,email,password,enabled,authority
+from sp_user s1 left outer join sp_user_authority s2 on s1.userid = s2.userid;
+
+-- 특정 user의 정보 추출
+select s1.userid,email,password,enabled,authority
+from sp_user s1 left outer join sp_user_authority s2 on s1.userid = s2.userid
+where s1.userid = 'hong123';
+
+-- remember-me를 위한 테이블 작성
+create table persistent_logins(
+    username varchar(64) not null,
+    series varchar(64) primary key,
+    token varchar(64) not null,
+    last_used timestamp not null);
+    
+-- spring_board 연결할 user 테이블 생성 => spring_member
+-- userid, userpw, username(성명), regdate, updatedate, enabled
+create table spring_member(
+    userid varchar2(50) primary key,
+    userpw varchar2(100) not null,
+    username varchar2(100) not null,
+    regdate date default sysdate,
+    updatedate date default sysdate,
+    enabled char(1) default '1');
+
+-- spring_member 권한 테이블 생성 => spring_member_auth
+-- userid, auth
+create table spring_member_auth(
+    userid varchar2(50) not null,
+    auth varchar2(50) not null,
+    constraint fk_member_auth foreign key(userid) references spring_member(userid));
+
+
+create table diary_member(
+    userid varchar2(20) not null,
+    password varchar2(300) not null,
+    name varchar2(10) not null,
+    email varchar2(30) not null
+    );
+    
+create table diary_board(
+    bno NUMBER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) constraint pk_diary_board primary key,
+    title varchar2(200) not null,
+    content varchar2(2000) not null,
+    writer varchar2(20) not null,
+    regdate date default sysdate
+);
+
+drop table diary_board;
+
+insert into diary_board(title, content, writer) values ('테스트글1','이것은 테스트 글입니다','test1');
+insert into diary_board(title, content, writer) values ('테스트글2','이것은 테스트 글입니다','test2');
+insert into diary_board(title, content, writer) values ('테스트글3','이것은 테스트 글입니다','test3');
+insert into diary_board(title, content, writer) values ('테스트글4','이것은 테스트 글입니다','test4');
+
+
+commit;
+        
+delete from diary_board where writer not in('test1');
+
+select *
+		from diary_board
+		where writer = 'test4';
+
+create table kbo_board(
+    bno NUMBER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1),
+    title varchar2(200) not null,
+    content varchar2(2000) not null,
+    writer varchar2(20) not null,
+    regdate date default sysdate
+);
+
+commit;
