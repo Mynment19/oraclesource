@@ -750,12 +750,21 @@ select *
 		from diary_board
 		where writer = 'test4';
 
+drop table kbo_board;
+
 create table kbo_board(
-    bno NUMBER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1),
+    bno number(10) constraint pk_kbo_board primary key,
     title varchar2(200) not null,
     content varchar2(2000) not null,
-    writer varchar2(20) not null,
-    regdate date default sysdate
-);
+    writer varchar2(50) not null,
+    regdate date default sysdate,
+    updatedate date default sysdate,
+    replycnt number default 0);
+
+create sequence seq_kboboard;
+drop sequence seq_kboboard;
 
 commit;
+
+
+
